@@ -144,6 +144,12 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+        .overall-result {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -218,29 +224,44 @@
             const partB = answers.slice(9).reduce((sum, answer) => sum + parseInt(answer || 0), 0);
             const total = partA + partB;
 
-            let result;
-            if (total <= 16) {
-                result = "不太可能有ADHD";
-            } else if (total <= 23) {
-                result = "很可能有ADHD";
+            function getResultText(score) {
+                if (score >= 24) return "非常可能有ADHD";
+                if (score >= 17) return "很可能有ADHD";
+                return "不太可能有ADHD";
+            }
+
+            let resultA = getResultText(partA);
+            let resultB = getResultText(partB);
+
+            let overallResult;
+            if (partA >= 17 && partB >= 17) {
+                overallResult = `${Math.max(partA, partB) >= 24 ? "非常" : "很"}可能有ADHD（不专心和过动/冲动并存）`;
+            } else if (partA >= 17) {
+                overallResult = `${resultA}（不专心为主）`;
+            } else if (partB >= 17) {
+                overallResult = `${resultB}（过动/冲动为主）`;
             } else {
-                result = "非常可能有ADHD";
+                overallResult = "不太可能有ADHD";
             }
 
             const resultElement = document.getElementById('result');
             resultElement.innerHTML = `
-                <h2>结果: ${result}</h2>
+                <h2>评估结果</h2>
                 <div class="score-grid">
                     <div class="score-box">
                         <div>A部分得分 (不专心)</div>
                         <div class="score-value">${partA}</div>
+                        <div>${resultA}</div>
                     </div>
                     <div class="score-box">
                         <div>B部分得分 (过动/冲动)</div>
                         <div class="score-value">${partB}</div>
+                        <div>${resultB}</div>
                     </div>
                 </div>
                 <div class="total-score">总分: ${total}</div>
+                <p class="overall-result">${overallResult}</p>
+                <p style="margin-top: 20px; font-style: italic; color: #7f8c8d;">数据仅供参考，具体诊断建议到医院就诊或咨询专业医师。</p>
             `;
             resultElement.classList.add('show');
 
